@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from pathlib import Path
-
+from src.rag_assistant import ask_vireo
 # ============================================================
 # PAGE CONFIG
 # ============================================================
@@ -189,7 +189,66 @@ st.markdown(
 
 st.divider()
 
+# ============================================================
+# ASK THE EVIDENCE
+# ============================================================
 
+st.subheader("💬 Ask the Evidence")
+
+st.caption(
+    "Ask questions about the refund analysis, support policy, "
+    "email thread, AI classification, or policy exceptions."
+)
+
+question = st.text_input(
+    "Ask a question",
+    placeholder=(
+        "Why is GW-OTHER so high?"
+    )
+)
+
+if st.button("Ask Vireo AI"):
+
+    if not question.strip():
+
+        st.warning(
+            "Please enter a question."
+        )
+
+    else:
+
+        with st.spinner(
+            "Retrieving evidence..."
+        ):
+
+            answer, evidence = ask_vireo(
+                question,
+                top_k=10
+            )
+
+        st.markdown("### Answer")
+
+        st.write(answer)
+
+        if evidence:
+
+            st.markdown(
+                "### Evidence used"
+            )
+
+            for i, item in enumerate(
+                evidence,
+                start=1
+            ):
+
+                with st.expander(
+                    f"{i}. {item['source']} "
+                    f"(relevance: {item['score']:.2f})"
+                ):
+
+                    st.write(
+                        item["text"]
+                    )
 # ============================================================
 # EXECUTIVE SUMMARY
 # ============================================================
